@@ -31,14 +31,16 @@ impl UdpTransmitter {
     /// use rusty_channel::transmitter::UdpTransmitter;
     /// use tokio::sync::mpsc;
     ///
-    ///
-    /// let dest_addr = String::from("127.0.0.1:6943");
-    /// let (data_tx, data_rx) = mpsc::channel(1);
-    /// let mut tx =
-    /// UdpTransmitter::new(String::from("127.0.0.1:6942"), data_rx, dest_addr.clone()).
-    /// await.
-    /// unwrap();
-    /// //use UdpTransmitter...
+    /// async fn do_something()
+    /// {
+    ///     let dest_addr = String::from("127.0.0.1:6943");
+    ///     let (data_tx, data_rx) = mpsc::channel(1);
+    ///     let mut tx =
+    ///     UdpTransmitter::new(String::from("127.0.0.1:6942"), data_rx, dest_addr.clone()).
+    ///     await.
+    ///     unwrap();
+    ///     //use UdpTransmitter...
+    /// }
     pub async fn new(
         src_addr: String,
         data_source: mpsc::Receiver<Bytes>,
@@ -63,14 +65,15 @@ impl UdpTransmitter {
     /// use rusty_channel::transmitter::UdpTransmitter;
     /// use tokio::sync::mpsc;
     ///
-    ///
-    /// let dest_addr = String::from("127.0.0.1:6943");
-    /// let (data_tx, data_rx) = mpsc::channel(1);
-    /// let mut tx =
-    /// UdpTransmitter::new(String::from("127.0.0.1:6942"), data_rx, dest_addr.clone()).
-    /// await.
-    /// unwrap();
-    /// tx.run().await;
+    /// async fn do_something(){
+    ///     let dest_addr = String::from("127.0.0.1:6943");
+    ///     let (data_tx, data_rx) = mpsc::channel(1);
+    ///     let mut tx =
+    ///     UdpTransmitter::new(String::from("127.0.0.1:6942"), data_rx, dest_addr.clone()).
+    ///     await.
+    ///     unwrap();
+    ///     tx.run().await;
+    /// }
     pub async fn run(&mut self) {
         loop {
             let data = self.data_source.recv().await;
