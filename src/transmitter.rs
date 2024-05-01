@@ -10,15 +10,16 @@ use tokio::{net::UdpSocket, sync::mpsc};
 /// Contains a `tokio::UdpSocket`
 /// for data transmission
 ///
-/// and a channel reciever to get data to send
+/// and a `tokio::mpsc::Reciever` to get data to send
 pub struct UdpTransmitter {
     socket: Arc<UdpSocket>,
     data_source: mpsc::Receiver<Bytes>,
 }
 
 impl UdpTransmitter {
-    /// This function will create a new Transmitter
-    /// with given ip addresses for src and transmission and a reciever channel
+    /// This function will create a new `UdpTransmitter`
+    /// with given ip addresses for src and transmission using `String`
+    /// and a `tokio::mpsc::Reciever`
     ///
     ///  # Notes
     ///
@@ -28,7 +29,7 @@ impl UdpTransmitter {
     /// # Example
     /// ```no_run
     ///
-    /// use rusty_channel::transmitter::UdpTransmitter;
+    /// use rusty_channel::UdpTransmitter;
     /// use tokio::sync::mpsc;
     ///
     /// async fn do_something()
@@ -54,15 +55,15 @@ impl UdpTransmitter {
         })
     }
 
-    /// This function is responsible for the continuous run of the transmitter
+    /// This function is responsible for the continuous run of the `UdpTransmitter`
     ///
     /// `Run` will loop until the channel is closed.
     ///
-    /// The function awaits data from the loop and transfers it to the socket
+    /// The function awaits data from the loop and transfers it to the `UdpSocket`
     /// # Example
     /// ```no_run
     ///
-    /// use rusty_channel::transmitter::UdpTransmitter;
+    /// use rusty_channel::UdpTransmitter;
     /// use tokio::sync::mpsc;
     ///
     /// async fn do_something(){

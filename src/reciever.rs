@@ -1,12 +1,43 @@
+//! Reciever
+//!
+//! A module responsible the reception of data via UDP
 use tokio::{net::UdpSocket, sync::mpsc};
 
 const BUFFER_SIZE: usize = 1024 * 4; //TODO: buffer size should be dynamic based on info packet
+/// A UDP reciever
+///
+/// Contains a `tokio::socket`
+/// for data reception
+///
+/// and a `tokio::mpsc::Sender` for continual of data manipulation
 pub struct UdpReciever {
     socket: UdpSocket,
     data_destination: mpsc::Sender<(Vec<u8>, usize)>,
 }
-
 impl UdpReciever {
+    /// This function will create a new `UdpReciever`
+    ///
+    /// It takes an address to `bind` to and a `Sender`
+    /// for data forwarding
+    ///
+    /// # Notes
+    ///
+    /// The caller is responsible for the validity of the adresses
+    /// in case of an invalid address the function will return an `Error`
+    ///
+    /// # Example
+    /// ```no_run
+    ///
+    /// use rusty_channel::UdpReciever;
+    /// use tokio::sync::mpsc;
+    ///
+    /// async fn do_something()
+    /// {
+    ///     let dest = "127.0.0.1:6948";
+    ///     let (tx_chan, mut rx_chan) = mpsc::channel(1024);
+    ///     let mut rx = UdpReciever::new(String::from(dest), tx_chan).await.unwrap();
+    ///     //use `UdpReciever`...
+    /// }
     pub async fn new(
         addr: String,
         data_destination: mpsc::Sender<(Vec<u8>, usize)>,
@@ -17,7 +48,29 @@ impl UdpReciever {
             data_destination,
         })
     }
-
+    /// This function is responsible for the continuous run of the `UdpReciever`
+    ///
+    /// `Run` will loop forever.
+    ///
+    /// The function awaits data from the loop and transfers it to the socket
+    /// # Example
+    /// ```no_run
+    ///
+    /// use rusty_channel::UdpReciever;
+    /// use tokio::sync::mpsc;
+    ///
+    ///
+    /// async fn do_something()
+    /// {
+    ///     let dest = "127.0.0.1:6948";
+    ///     let (tx_chan, mut rx_chan) = mpsc::channel(1024);
+    ///     let mut rx = UdpReciever::new(String::from(dest), tx_chan).await.unwrap();
+    ///     let incoming = tokio::spawn(async move { rx_chan.recv().await });
+    ///     tokio::spawn(async move { rx.run().await });
+    ///     let res = incoming.await.unwrap().unwrap();
+    ///     let data = &res.0[..res.1];
+    ///     //Use data as necessary
+    /// }
     pub async fn run(&mut self) {
         loop {
             let mut buf = vec![0u8; BUFFER_SIZE];
