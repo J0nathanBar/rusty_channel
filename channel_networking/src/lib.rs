@@ -1,7 +1,6 @@
 //! Rusty_Channel
 //!
 //! A library for sending data unidirectionally
-pub mod networking;
 pub mod reciever;
 pub mod transmitter;
 

@@ -29,7 +29,7 @@ impl UdpTransmitter {
     /// # Example
     /// ```no_run
     ///
-    /// use rusty_channel::UdpTransmitter;
+    /// use channel_networking::UdpTransmitter;
     /// use tokio::sync::mpsc;
     ///
     /// async fn do_something()
@@ -63,7 +63,7 @@ impl UdpTransmitter {
     /// # Example
     /// ```no_run
     ///
-    /// use rusty_channel::UdpTransmitter;
+    /// use channel_networking::UdpTransmitter;
     /// use tokio::sync::mpsc;
     ///
     /// async fn do_something(){

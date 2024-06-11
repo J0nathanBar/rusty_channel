@@ -28,7 +28,7 @@ impl UdpReciever {
     /// # Example
     /// ```no_run
     ///
-    /// use rusty_channel::UdpReciever;
+    /// use channel_networking::UdpReciever;
     /// use tokio::sync::mpsc;
     ///
     /// async fn do_something()
@@ -56,7 +56,7 @@ impl UdpReciever {
     /// # Example
     /// ```no_run
     ///
-    /// use rusty_channel::UdpReciever;
+    /// use channel_networking::UdpReciever;
     /// use tokio::sync::mpsc;
     ///
     ///
