@@ -206,6 +206,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "719b953e2095829ee67db738b3bfa9fa368c94900df327b3f07fe6e794d2fe1f"
 
 [[package]]
+name = "rx_cmd"
+version = "0.1.0"
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -276,6 +280,10 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "tx_cmd"
+version = "0.1.0"
 
 [[package]]
 name = "unicode-ident"
