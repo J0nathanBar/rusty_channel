@@ -15,9 +15,9 @@ pub struct UdpReciever {
     data_destination: mpsc::Sender<(Vec<u8>, usize)>,
 }
 impl UdpReciever {
-    /// This function will create a new `UdpReciever`
+    /// This function will create a new `UdpReciever` and an `mpsc::Reciever` for communications
     ///
-    /// It takes an address to `bind` to and a `Sender`
+    /// It takes an address to `bind` to
     /// for data forwarding
     ///
     /// # Notes
@@ -34,19 +34,21 @@ impl UdpReciever {
     /// async fn do_something()
     /// {
     ///     let dest = "127.0.0.1:6948";
-    ///     let (tx_chan, mut rx_chan) = mpsc::channel(1024);
-    ///     let mut rx = UdpReciever::new(String::from(dest), tx_chan).await.unwrap();
+    ///     let (mut rx,rx_chan) = UdpReciever::new(String::from(dest)).await.unwrap();
     ///     //use `UdpReciever`...
     /// }
     pub async fn new(
         addr: String,
-        data_destination: mpsc::Sender<(Vec<u8>, usize)>,
-    ) -> Result<UdpReciever, Box<dyn std::error::Error>> {
+    ) -> Result<(UdpReciever, mpsc::Receiver<(Vec<u8>, usize)>), Box<dyn std::error::Error>> {
+        let (data_destination, data_handle_channel) = mpsc::channel(BUFFER_SIZE);
         let socket = UdpSocket::bind(addr).await?;
-        Ok(UdpReciever {
-            socket,
-            data_destination,
-        })
+        Ok((
+            UdpReciever {
+                socket,
+                data_destination,
+            },
+            data_handle_channel,
+        ))
     }
     /// This function is responsible for the continuous run of the `UdpReciever`
     ///
@@ -63,8 +65,7 @@ impl UdpReciever {
     /// async fn do_something()
     /// {
     ///     let dest = "127.0.0.1:6948";
-    ///     let (tx_chan, mut rx_chan) = mpsc::channel(1024);
-    ///     let mut rx = UdpReciever::new(String::from(dest), tx_chan).await.unwrap();
+    ///     let (mut rx,mut rx_chan) = UdpReciever::new(String::from(dest)).await.unwrap();
     ///     let incoming = tokio::spawn(async move { rx_chan.recv().await });
     ///     tokio::spawn(async move { rx.run().await });
     ///     let res = incoming.await.unwrap().unwrap();
@@ -105,8 +106,7 @@ mod reciever_tests {
     async fn test_reciever() {
         const SEND_LEN: usize = 69;
         let dest = "127.0.0.1:6948";
-        let (tx_chan, mut rx_chan) = mpsc::channel(1024);
-        let mut rx = UdpReciever::new(String::from(dest), tx_chan).await.unwrap();
+        let (mut rx, mut rx_chan) = UdpReciever::new(String::from(dest)).await.unwrap();
         let sock = UdpSocket::bind("127.0.0.1:6969").await.unwrap();
         sock.connect(String::from(dest)).await.unwrap();
         let data = vec![69u8; SEND_LEN];

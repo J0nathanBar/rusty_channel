@@ -13,11 +13,11 @@ use tokio::{net::UdpSocket, sync::mpsc};
 /// and a `tokio::mpsc::Reciever` to get data to send
 pub struct UdpTransmitter {
     socket: Arc<UdpSocket>,
-    data_source: mpsc::Receiver<Bytes>,
+    data_source_recv: mpsc::Receiver<Bytes>,
 }
-
+const CHANNEL_BUFFER: usize = 1024; //TODO figure out the actual buffer size
 impl UdpTransmitter {
-    /// This function will create a new `UdpTransmitter`
+    /// This function will create a new `UdpTransmitter` along with a `Sender` for communications
     /// with given ip addresses for src and transmission using `String`
     /// and a `tokio::mpsc::Reciever`
     ///
@@ -35,24 +35,26 @@ impl UdpTransmitter {
     /// async fn do_something()
     /// {
     ///     let dest_addr = String::from("127.0.0.1:6943");
-    ///     let (data_tx, data_rx) = mpsc::channel(1);
-    ///     let mut tx =
-    ///     UdpTransmitter::new(String::from("127.0.0.1:6942"), data_rx, dest_addr.clone()).
+    ///     let (mut tx,data_tx) =
+    ///     UdpTransmitter::new(String::from("127.0.0.1:6942"), dest_addr.clone()).
     ///     await.
     ///     unwrap();
     ///     //use UdpTransmitter...
     /// }
     pub async fn new(
         src_addr: String,
-        data_source: mpsc::Receiver<Bytes>,
         dest_addr: String,
-    ) -> Result<UdpTransmitter, Box<dyn std::error::Error>> {
+    ) -> Result<(UdpTransmitter, mpsc::Sender<Bytes>), Box<dyn std::error::Error>> {
+        let (data_send, data_source_recv) = mpsc::channel(CHANNEL_BUFFER);
         let socket = Arc::new(UdpSocket::bind(src_addr).await?);
         socket.connect(dest_addr).await?;
-        Ok(UdpTransmitter {
-            socket,
-            data_source,
-        })
+        Ok((
+            UdpTransmitter {
+                socket,
+                data_source_recv,
+            },
+            data_send,
+        ))
     }
 
     /// This function is responsible for the continuous run of the `UdpTransmitter`
@@ -68,16 +70,16 @@ impl UdpTransmitter {
     ///
     /// async fn do_something(){
     ///     let dest_addr = String::from("127.0.0.1:6943");
-    ///     let (data_tx, data_rx) = mpsc::channel(1);
-    ///     let mut tx =
-    ///     UdpTransmitter::new(String::from("127.0.0.1:6942"), data_rx, dest_addr.clone()).
+    ///   
+    ///     let (mut tx,mut data_tx) =
+    ///     UdpTransmitter::new(String::from("127.0.0.1:6942"), dest_addr.clone()).
     ///     await.
     ///     unwrap();
     ///     tx.run().await;
     /// }
     pub async fn run(&mut self) {
         loop {
-            let data = self.data_source.recv().await;
+            let data = self.data_source_recv.recv().await;
             if let Some(data) = data {
                 tokio::spawn(UdpTransmitter::send_data(self.socket.clone(), data));
             } else {
@@ -101,9 +103,8 @@ mod transmitter_tests {
     #[tokio::test]
     async fn test_transmitter() {
         let dest_addr = String::from("127.0.0.1:6943");
-        let (data_tx, data_rx) = mpsc::channel(1);
-        let mut tx =
-            UdpTransmitter::new(String::from("127.0.0.1:6942"), data_rx, dest_addr.clone())
+        let (mut tx, data_tx) =
+            UdpTransmitter::new(String::from("127.0.0.1:6942"), dest_addr.clone())
                 .await
                 .unwrap();
         let sock = UdpSocket::bind(dest_addr).await.unwrap();
