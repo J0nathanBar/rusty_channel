@@ -208,6 +208,10 @@ checksum = "719b953e2095829ee67db738b3bfa9fa368c94900df327b3f07fe6e794d2fe1f"
 [[package]]
 name = "rx_cmd"
 version = "0.1.0"
+dependencies = [
+ "channel_networking",
+ "tokio",
+]
 
 [[package]]
 name = "scopeguard"
@@ -284,6 +288,11 @@ dependencies = [
 [[package]]
 name = "tx_cmd"
 version = "0.1.0"
+dependencies = [
+ "bytes",
+ "channel_networking",
+ "tokio",
+]
 
 [[package]]
 name = "unicode-ident"

@@ -4,3 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+channel_networking = { path= "../channel_networking" }
+tokio = { version = "1.38.0", features = ["full"] }

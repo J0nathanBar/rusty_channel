@@ -81,6 +81,7 @@ impl UdpTransmitter {
         loop {
             let data = self.data_source_recv.recv().await;
             if let Some(data) = data {
+                println!("prepping to send data");
                 tokio::spawn(UdpTransmitter::send_data(self.socket.clone(), data));
             } else {
                 break;
@@ -97,6 +98,11 @@ impl UdpTransmitter {
     }
 }
 
+impl Drop for UdpTransmitter {
+    fn drop(&mut self) {
+        println!("goodbye!");
+    }
+}
 #[cfg(test)]
 mod transmitter_tests {
     use super::*;
