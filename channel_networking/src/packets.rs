@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::{sync::atomic::AtomicUsize, time};
 type IdType = usize;
 
+#[derive(Serialize, Deserialize)]
 pub struct InfoPakcet {
     data_size: usize,
     id: IdType, //TODO generate a uuid
@@ -20,7 +21,7 @@ impl InfoPakcet {
         self.id
     }
 }
-
+#[derive(Serialize, Deserialize)]
 pub struct DataPacket {
     data: Vec<u8>, //Data is always after fec
     id: IdType,
@@ -30,9 +31,10 @@ impl DataPacket {
         DataPacket { data, id }
     }
 }
-
+#[derive(Serialize, Deserialize)]
 pub struct KeepAlivePacket {}
 
+#[derive(Serialize, Deserialize)]
 pub enum Packet {
     Info(InfoPakcet),
     Data(DataPacket),
