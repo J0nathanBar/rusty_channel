@@ -84,6 +84,7 @@ name = "fec_handler"
 version = "0.1.0"
 dependencies = [
  "raptor-code",
+ "tokio",
 ]
 
 [[package]]
