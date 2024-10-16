@@ -9,7 +9,7 @@ pub struct InfoPakcet {
     destination: (),
 }
 impl InfoPakcet {
-    pub fn new(destination: (), data_size: usize) -> InfoPakcet {
+     fn new(destination: (), data_size: usize) -> InfoPakcet {
         static COUNTER: AtomicUsize = AtomicUsize::new(0);
         InfoPakcet {
             data_size,
@@ -27,7 +27,7 @@ pub struct DataPacket {
     id: IdType,
 }
 impl DataPacket {
-    pub fn new(data: Vec<u8>, id: IdType) -> DataPacket {
+     fn new(data: Vec<u8>, id: IdType) -> DataPacket {
         DataPacket { data, id }
     }
 }
@@ -39,4 +39,16 @@ pub enum Packet {
     Info(InfoPakcet),
     Data(DataPacket),
     KeepAlive(KeepAlivePacket),
+}
+
+impl Packet {
+    pub fn new_info_packet(data_size:usize)->Packet {
+        return Packet::Info(InfoPakcet::new((), data_size));
+    }
+    pub fn new_data_packet(data:Vec<u8>,id:IdType)->Packet {
+        return Packet::Data(DataPacket::new(data, id));
+    }
+    pub fn new_keep_alive_packet()->Packet {
+        return Packet::KeepAlive(KeepAlivePacket {  });
+    }
 }

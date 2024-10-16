@@ -1,7 +1,6 @@
 //! # Tranmitter
 //!
 //! A module for controlling the transmission of data via UDP.
-use bytes::Bytes;
 use std::sync::Arc;
 use tokio::{net::UdpSocket, sync::mpsc};
 
@@ -13,7 +12,7 @@ use tokio::{net::UdpSocket, sync::mpsc};
 /// and a `tokio::mpsc::Reciever` to get data to send
 pub struct UdpTransmitter {
     socket: Arc<UdpSocket>,
-    data_source_recv: mpsc::Receiver<Bytes>,
+    data_source_recv: mpsc::Receiver<Vec<u8>>,
 }
 const CHANNEL_BUFFER: usize = 1024; //TODO figure out the actual buffer size
 impl UdpTransmitter {
@@ -44,7 +43,7 @@ impl UdpTransmitter {
     pub async fn new(
         src_addr: String,
         dest_addr: String,
-    ) -> Result<(UdpTransmitter, mpsc::Sender<Bytes>), Box<dyn std::error::Error>> {
+    ) -> Result<(UdpTransmitter, mpsc::Sender<Vec<u8>>), Box<dyn std::error::Error>> {
         let (data_send, data_source_recv) = mpsc::channel(CHANNEL_BUFFER);
         let socket = Arc::new(UdpSocket::bind(src_addr).await?);
         socket.connect(dest_addr).await?;
@@ -88,7 +87,7 @@ impl UdpTransmitter {
             }
         }
     }
-    async fn send_data(sock: Arc<UdpSocket>, data: Bytes) {
+    async fn send_data(sock: Arc<UdpSocket>, data: Vec<u8>) {
         let send_res = sock.send(&data).await;
         if let Ok(bytes_sent) = send_res {
             println!("Sent {} bytes successfully", bytes_sent);
@@ -115,7 +114,7 @@ mod transmitter_tests {
                 .unwrap();
         let sock = UdpSocket::bind(dest_addr).await.unwrap();
         tokio::spawn(async move { tx.run().await });
-        let data_to_send = Bytes::from(vec![0u8; 200]);
+        let data_to_send = vec![0u8; 200];
         let len = data_to_send.len();
         data_tx.send(data_to_send).await.unwrap();
         let mut buff = vec![0u8; 1024];
