@@ -1,3 +1,3 @@
 [workspace]
 name = "rusty_channel"
-members = ["channel_networking", "rx_cmd", "tx_cmd", "udp_streamer"]
+members = ["channel_networking", "rx_cmd", "tx_cmd"]

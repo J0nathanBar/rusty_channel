@@ -20,6 +20,9 @@ impl InfoPakcet {
     pub fn get_id(&self) -> IdType {
         self.id
     }
+    pub  fn get_data_size(&self)->usize {
+        self.data_size
+    }
 }
 #[derive(Serialize, Deserialize)]
 pub struct DataPacket {
@@ -29,6 +32,9 @@ pub struct DataPacket {
 impl DataPacket {
      fn new(data: Vec<u8>, id: IdType) -> DataPacket {
         DataPacket { data, id }
+    }
+    pub fn consume_payload(self)->Vec<u8> {
+        self.data
     }
 }
 #[derive(Serialize, Deserialize)]
